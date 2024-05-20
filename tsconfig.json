@@ -24,15 +24,7 @@
       "node_modules/@types", 
       "@types",
       "global.d.ts"
-    ], 
-    "paths": {
-      "@src/*": ["./src/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@components/*": ["./src/components/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@pages/*": ["./src/pages/*"]
-      },    
+    ],     
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

@@ -1,40 +1,28 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { Drawer, List, ListItem, ListItemText } from '@mui/material';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import CategoryPage from './pages/CategoryPage';
 import AboutPage from './pages/AboutPage';
+import Sidebar from './components/Sidebar';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
 
 const App: React.FC = () => {
   return (
     <Router>
-      <div style={{ display: 'flex' }}>
-        <Drawer variant="permanent" anchor="left">
-          <List>
-            <ListItem component={Link} to="/">
-              <ListItemText primary="Home" />
-            </ListItem>
-            <ListItem component={Link} to="/products">
-              <ListItemText primary="Products" />
-            </ListItem>
-            <ListItem component={Link} to="/categories">
-              <ListItemText primary="Categories" />
-            </ListItem>
-            <ListItem component={Link} to="/about">
-              <ListItemText primary="About" />
-            </ListItem>
-          </List>
-        </Drawer>
-        <div style={{ flexGrow: 1, padding: '16px' }}>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <Sidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Routes>
-            <Route path="/" element={<HomePage/>} />
-            <Route path="/products" element={<ProductPage/>} />
-            <Route path="/categories" element={<CategoryPage/>} />
-            <Route path="/about" element={<AboutPage/>} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<ProductPage />} />
+            <Route path="/categories" element={<CategoryPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Routes>
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Router>
   );
 };

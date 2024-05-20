@@ -1,8 +1,15 @@
 import React from 'react'
+import { useTheme } from '@mui/material/styles';
 
 const AboutPage:React.FC = () => {
+  const theme = useTheme();
+  const appBarHeight = theme.mixins.toolbar.minHeight;
+
   return (
-    <div>AboutPage</div>
+    <>
+      <div style={{marginTop: appBarHeight}}/>
+      <div>About Page</div>
+    </>
   )
 }
 
