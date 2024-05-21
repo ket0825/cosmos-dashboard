@@ -60,8 +60,8 @@ declare global {
   match_nv_mid: string;
   brand: string;
   maker: string;
-  naver_spec: any;
-  seller_spec: any;
+  naver_spec: object;
+  seller_spec: object;
   detail_image_urls: string[];
   }
 }
@@ -109,7 +109,7 @@ declare global {
     star_score: number;
     topic_count: number;
     topic_yn: string;
-    topics: any;
+    topics: Array;
     user_id: string;
     aida_modify_time: string;
     mall_id: string;
