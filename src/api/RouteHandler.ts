@@ -1,4 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
+import {apiUrl, stage} from '../settings.ts';
 
 const DEBUG=true;
 
@@ -19,9 +20,9 @@ const DEBUG=true;
 
 const getRequest = async(url:string, 
     params:ReqCategoryType | ReqProductHistoryType | ReqProductType | ReqReviewType | ReqTopicType | null, 
-    timeout:number=5000): Promise<[CategoryType | ProductType | ProductHistoryType | ReviewType | TopicType | 
-        [string, number]
-    ]> => {
+    timeout:number=5000): Promise<CategoryType[] | ProductType[] | ProductHistoryType[] | ReviewType[] | TopicType[] | 
+        null
+    > => {
     let retryCount = 0;
     if (DEBUG) {
         retryCount = 4;
@@ -55,18 +56,9 @@ const getRequest = async(url:string,
         }
     }
 
-    console.info(`[ERROR] Failed to fetch data from ${url}`);
-    return [msg, 500];
-
-    
+    console.info(`[ERROR] Could not get request at ${url}. Retry count: ${retryCount}. Error message: ${msg}`);
+    return null;    
 }
-
-class RouteHandler {
-    constructor() {
-        
-    }
-}
-
 
 export const fetchProducts = async () => {
     try {
@@ -81,101 +73,6 @@ export const fetchProducts = async () => {
     }
 }
 
-
-/**
- * const DEBUG = true;
-
-interface Response {
-  text(): Promise<string>;
-  json(): Promise<any>;
-  status: number;
-}
-
-async function deleteRequest(url: string, timeout = 1): Promise<[string | null, number | null]> {
-  let retryCount = 0;
-  if (DEBUG) {
-    retryCount = 4;
-    console.info("DEBUG MODE");
-  }
-
-  while (retryCount < 5) {
-    try {
-      const res: Response = await fetch(url, { method: 'DELETE', timeout: timeout });
-      if (res.status) {
-        return [await res.text(), res.status];
-      }
-    } catch (e) {
-      if (e instanceof TimeoutError) {
-        console.error(`[ERROR] Timeout at ${url}. Retry count: ${retryCount}`);
-        retryCount++;
-      } else {
-        console.error(`[ERROR] Error at ${url}.\nError log: ${e}`);
-        return [null, null];
-      }
-    }
-  }
-
-  console.info(`[ERROR] Could not delete request at ${url}. Retry count: ${retryCount}`);
-  return [null, null];
-}
-
-async function postRequest(url: string, data: any, timeout = 1): Promise<[string | null, number | null]> {
-  let retryCount = 0;
-  if (DEBUG) {
-    retryCount = 4;
-    console.info("DEBUG MODE");
-  }
-
-  while (retryCount < 5) {
-    try {
-      const res: Response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), timeout: timeout });
-      if (res.status) {
-        return [await res.text(), res.status];
-      }
-    } catch (e) {
-      if (e instanceof TimeoutError) {
-        console.error(`[ERROR] Timeout at ${url}. Retry count: ${retryCount}`);
-        retryCount++;
-      } else {
-        console.error(`[ERROR] Error at ${url}.\nError log: ${e}`);
-        return [null, null];
-      }
-    }
-  }
-
-  console.info(`[ERROR] Could not post request at ${url}. Retry count: ${retryCount}`);
-  return [null, null];
-}
-
-async function getRequest(url: string, data: any, timeout = 1): Promise<any> {
-  let retryCount = 0;
-  if (DEBUG) {
-    retryCount = 4;
-    console.info("DEBUG MODE");
-  }
-
-  while (retryCount < 5) {
-    try {
-      const res: Response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), timeout: timeout });
-      if (res) {
-        return await res.json();
-      }
-    } catch (e) {
-      if (e instanceof TimeoutError) {
-        console.error(`[ERROR] Timeout at ${url}. Retry count: ${retryCount}`);
-        retryCount++;
-      } else {
-        console.error(`[ERROR] Error at ${url}.\nError log: ${e}`);
-        return null;
-      }
-    }
-
-    console.info(`[ERROR] Could not post request at ${url}. Retry count: ${retryCount}`);
-  }
-
-  return null;
-}
-
 class RouteHandler {
   private _stage: string;
   private _url: string;
@@ -185,23 +82,8 @@ class RouteHandler {
     this._url = url;
   }
 
-  async getIp(unused = true): Promise<any> {
-    const res = await getRequest(`${this._url}/ip?unused=${unused}`, null, 1);
-    return res;
-  }
-
-  async upsertIp(data: any): Promise<[string | null, number | null]> {
-    const [resText, resCode] = await postRequest(`${this._url}/ip`, data);
-    return [resText, resCode];
-  }
-
-  async deleteIp(address: string): Promise<[string | null, number | null]> {
-    const [resText, resCode] = await deleteRequest(`${this._url}/ip/${address}`, 1);
-    return [resText, resCode];
-  }
-
-  async getProduct(prid?: string, matchNvMid?: string, sCategory?: string, caid?: string): Promise<any> {
-    let url = `${this._url}/product`;
+  async getProduct(prid?: string, matchNvMid?: string, sCategory?: string, caid?: string): Promise<ProductType[] | null> {
+    let url:string = `${this._url}/product`;
     let suffixUrl = '';
 
     if (prid && typeof prid === 'string') {
@@ -220,20 +102,10 @@ class RouteHandler {
     suffixUrl = suffixUrl.replace(/&$/, '');
     const res = await getRequest(`${url}${suffixUrl}`, null, 3);
 
-    return res;
+    return res as ProductType[] | null;
   }
 
-  async upsertProductMatch(data: Record<string, any>): Promise<[string | null, number | null]> {
-    const [resText, resCode] = await postRequest(`${this._url}/product/match`, data, 5);
-    return [resText, resCode];
-  }
-
-  async updateProductDetailOne(data: Record<string, any>): Promise<[string | null, number | null]> {
-    const [resText, resCode] = await postRequest(`${this._url}/product/detail/one`, data, 5);
-    return [resText, resCode];
-  }
-
-  async getProductHistory(caid?: string, prid?: string, countDesc?: number): Promise<any> {
+  async getProductHistory(caid?: string, prid?: string, countDesc?: number): Promise<ProductHistoryType[] | null> {
     let url = `${this._url}/product_history`;
     let suffixUrl = '';
 
@@ -250,10 +122,10 @@ class RouteHandler {
     suffixUrl = suffixUrl.replace(/&$/, '');
     const res = await getRequest(`${url}${suffixUrl}`, null, 1);
 
-    return res;
+    return res as ProductHistoryType[] | null;
   }
 
-  async getCategory(caid?: string, sCategory?: string, mCategory?: string): Promise<any> {
+  async getCategory(caid?: string, sCategory?: string, mCategory?: string): Promise<CategoryType[] | null> {
     let url = `${this._url}/category`;
     let suffixUrl = '';
 
@@ -270,15 +142,10 @@ class RouteHandler {
     suffixUrl = suffixUrl.replace(/&$/, '');
     const res = await getRequest(`${url}${suffixUrl}`, null, 1);
 
-    return res;
+    return res as CategoryType[] | null;
   }
 
-  async upsertCategory(data: any[]): Promise<[string | null, number | null]> {
-    const [resText, resCode] = await postRequest(`${this._url}/category`, data, 5);
-    return [resText, resCode];
-  }
-
-  async getReview(caid: string, prid?: string, reid?: string): Promise<any> {
+  async getReview(caid: string, prid?: string, reid?: string): Promise<ReviewType[] | null> {
     let url = `${this._url}/category`;
     let suffixUrl = '';
 
@@ -293,12 +160,7 @@ class RouteHandler {
     suffixUrl = suffixUrl.replace(/&$/, '');
     const res = await getRequest(`${url}${suffixUrl}`, null, 3);
 
-    return res;
-  }
-
-  async upsertReviewBatch(data: any[]): Promise<[string | null, number | null]> {
-    const [resText, resCode] = await postRequest(`${this._url}/review`, data, 1000);
-    return [resText, resCode];
+    return res as ReviewType[] | null;
   }
 
   async getTopicByReid(
@@ -310,7 +172,7 @@ class RouteHandler {
     type?: string,
     positiveYn?: string,
     sentimentScale?: string
-  ): Promise<any> {
+  ): Promise<TopicType[] | null> {
     let url = `${this._url}/topic`;
     let suffixUrl = '';
 
@@ -340,11 +202,10 @@ class RouteHandler {
     suffixUrl = suffixUrl.replace(/&$/, '');
     const res = await getRequest(`${url}${suffixUrl}`, null, 5);
 
-    return res;
+    return res as TopicType[] | null;
   }
 }
 
 // Usage example
-const routeHandler = new RouteHandler("stage", "url");
+const routeHandler = new RouteHandler(apiUrl, stage);
 console.log(routeHandler.getTopicByReid("R01", "C02", "P01"));
- */
