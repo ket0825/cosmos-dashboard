@@ -26,14 +26,14 @@ declare global {
 
 declare global {
   interface CategoryType {
-  id: number
-  type: string
-  caid: string
-  s_category: string
-  m_category: string
-  url: string
-  s_topics: string[]
-  m_topics: string[]
+    id: number
+    type: string
+    caid: string
+    s_category: string
+    m_category: string
+    url: string
+    s_topics: string[]
+    m_topics: string[]
   }
 }
 
@@ -48,21 +48,21 @@ declare global {
 
 declare global {
   interface RealProductType {
-  id: number;
-  type: string;
-  caid: string;
-  prid: string;
-  url: string;
-  grade: number;
-  name: string;
-  lowest_price: number;
-  review_count: number;
-  match_nv_mid: string;
-  brand: string;
-  maker: string;
-  naver_spec: object;
-  seller_spec: object;
-  detail_image_urls: string[];
+    id: number;
+    type: string;
+    caid: string;
+    prid: string;
+    url: string;
+    grade: number;
+    name: string;
+    lowest_price: number;
+    review_count: number;
+    match_nv_mid: string;
+    brand: string;
+    maker: string;
+    naver_spec: object;
+    seller_spec: object;
+    detail_image_urls: string[];
   }
 }
 
@@ -76,14 +76,14 @@ declare global {
 
 declare global {
   interface ProductHistoryType {
-  id: number;
-  caid: string;
-  prid: string;
-  review_count: number;
-  grade: number;
-  lowest_price: number;
-  timestamp: string;
-    }
+    id: number;
+    caid: string;
+    prid: string;
+    review_count: number;
+    grade: number;
+    lowest_price: number;
+    timestamp: string;
+  }
 }
 
 declare global {
@@ -135,25 +135,88 @@ declare global {
 
 declare global {
   interface TopicType {
-  id: number;
-  type: string;
-  tpid: string;
-  prid: string;
-  reid: string;
-  text: string;
-  topic_code: string;
-  topic_name: string;
-  topic_score: number;
-  start_pos: number;
-  end_pos: number;
-  positive_yn: string;
-  sentiment_scale: number;
+    id: number;
+    type: string;
+    tpid: string | null;
+    prid: string | null;
+    reid: string | null;
+    text: string | null;
+    topic_code: string;
+    topic_name: string | null;
+    topic_score: number | null;
+    start_pos: number | null;
+    end_pos: number | null;
+    positive_yn: string | null;
+    sentiment_scale: number | null;
+    bbox: null;
+    image_number: null;
   }
 }
 
 declare global {
-  interface GetErrorResponseType {    
+  interface GetErrorResponseType {
     msg: string;
     status: number;
+  }
+}
+
+declare global {
+  interface modeTopicProps {
+    topicCode: string;
+    topicCount: number;
+    startDate: string;
+    endDate: string;
+  }
+}
+
+declare global {
+  interface KanoData {
+    id: string;
+    data: {
+      x: number;
+      y: number;
+      size: number;
+    }[]
+  }
+}
+
+declare global {
+  interface KanoChartProps {
+    kanoData: KanoData[] | null;
+  }
+}
+
+declare global {
+  interface TopNPieChartProps {
+    data: { [key: string]: number };
+    n: number;
+  }
+}
+
+declare global {
+  interface PieChartDataItem {
+    name: string;
+    value: number;
+  }
+}
+
+declare global {
+  interface PolarizedData {
+    id: string;
+    mean: number;
+    std: number;
+    count: number;
+  }
+}
+
+declare global {
+  interface PolarizedBoxPlotProps {
+    polarizedData: PolarizedData[] | null;
+  }
+}
+
+declare global {
+  interface PolarizedTableProps {
+    polarizedData: PolarizedData[] | null;
   }
 }

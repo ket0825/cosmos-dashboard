@@ -1,7 +1,9 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import {apiUrl, stage} from '../settings.ts';
 
-const DEBUG=true;
+
+// const DEBUG=true;
+const DEBUG=false;
+console.log(`DEBUG: ${DEBUG}`);
 
 // 이후에 사용할 수도 있는 함수
 // const postRequest = async(url:string, data:any, timeout:number=5000): Promise<[string | null, number | null]> => {
@@ -20,8 +22,8 @@ const DEBUG=true;
 
 const getRequest = async(url:string, 
     params:ReqCategoryType | ReqProductHistoryType | ReqProductType | ReqReviewType | ReqTopicType | null, 
-    timeout:number=5000): Promise<CategoryType[] | ProductType[] | ProductHistoryType[] | ReviewType[] | TopicType[] | 
-        null
+    timeout:number=5000): Promise<CategoryType[] | ProductType[] | ProductHistoryType[] | ReviewType[] | TopicType[] | KanoData[] |
+                          PolarizedData[] | null
     > => {
     let retryCount = 0;
     if (DEBUG) {
@@ -81,6 +83,10 @@ class RouteHandler {
     this._stage = stage;
     this._url = url;
   }
+  
+  stage(): string {
+    return this._stage;
+  }
 
   async getProduct(prid?: string, matchNvMid?: string, sCategory?: string, caid?: string): Promise<ProductType[] | null> {
     let url:string = `${this._url}/product`;
@@ -120,12 +126,12 @@ class RouteHandler {
     }
 
     suffixUrl = suffixUrl.replace(/&$/, '');
-    const res = await getRequest(`${url}${suffixUrl}`, null, 1);
+    const res = await getRequest(`${url}${suffixUrl}`, null, 1000);
 
     return res as ProductHistoryType[] | null;
   }
 
-  async getCategory(caid?: string, sCategory?: string, mCategory?: string): Promise<CategoryType[] | null> {
+  async getCategory(caid?: string, sCategory?: string, mCategory?: string): Promise<CategoryType[]> {
     let url = `${this._url}/category`;
     let suffixUrl = '';
 
@@ -140,9 +146,9 @@ class RouteHandler {
     }
 
     suffixUrl = suffixUrl.replace(/&$/, '');
-    const res = await getRequest(`${url}${suffixUrl}`, null, 1);
 
-    return res as CategoryType[] | null;
+    const res = await getRequest(`${url}${suffixUrl}`, null, 1000);
+    return res as CategoryType[];
   }
 
   async getReview(caid: string, prid?: string, reid?: string): Promise<ReviewType[] | null> {
@@ -163,49 +169,76 @@ class RouteHandler {
     return res as ReviewType[] | null;
   }
 
-  async getTopicByReid(
-    reid: string,
-    caid?: string,
-    prid?: string,
-    topicCode?: string,
-    topicScore?: string,
-    type?: string,
-    positiveYn?: string,
-    sentimentScale?: string
-  ): Promise<TopicType[] | null> {
+    async getTopicByType(
+      type: string,
+      reid?: string,
+      caid?: string,
+      prid?: string,
+      topicCode?: string,
+      topicScore?: string,
+      positiveYn?: string,
+      sentimentScale?: string
+    ): Promise<TopicType[]> {
     let url = `${this._url}/topic`;
-    let suffixUrl = '';
+    let suffixUrl = `?type=${type}&`;    
 
-    suffixUrl += `/${reid}`;
+    if (reid && typeof reid === 'string') {
+      suffixUrl += `reid=${reid}&`;
+    }
     if (caid && typeof caid === 'string') {
-      suffixUrl += `?caid=${caid}&`;
+      suffixUrl += `caid=${caid}&`;
     }
     if (prid && typeof prid === 'string') {
-      suffixUrl += `?prid=${prid}&`;
+      suffixUrl += `prid=${prid}&`;
     }
     if (topicCode && typeof topicCode === 'string') {
-      suffixUrl += `?topic_code=${topicCode}&`;
+      suffixUrl += `topic_code=${topicCode}&`;
     }
     if (topicScore && typeof topicScore === 'string') {
-      suffixUrl += `?topic_score=${topicScore}&`;
-    }
-    if (type && typeof type === 'string') {
-      suffixUrl += `?type=${type}&`;
-    }
+      suffixUrl += `topic_score=${topicScore}&`;
+    }    
     if (positiveYn && typeof positiveYn === 'string') {
-      suffixUrl += `?positive_yn=${positiveYn}&`;
+      suffixUrl += `positive_yn=${positiveYn}&`;
     }
     if (sentimentScale && typeof sentimentScale === 'string') {
-      suffixUrl += `?sentiment_scale=${sentimentScale}&`;
+      suffixUrl += `sentiment_scale=${sentimentScale}&`;
     }
 
     suffixUrl = suffixUrl.replace(/&$/, '');
-    const res = await getRequest(`${url}${suffixUrl}`, null, 5);
+    console.log(`url: ${url}${suffixUrl}`)
+    const res = await getRequest(`${url}${suffixUrl}`, null, 150000);
 
-    return res as TopicType[] | null;
+    return res as TopicType[];
+  }
+
+  async getKanoModelData(
+      type: string,
+      caid?: string,
+    ): Promise<KanoData[]> {
+    let url = `${this._url}/topic/kano_model`;
+    let suffixUrl = `?type=${type}&caid=${caid}`;    
+    
+    console.log(`url: ${url}${suffixUrl}`)
+    const res = await getRequest(`${url}${suffixUrl}`, null, 150000);
+
+    return res as KanoData[];
+  }
+
+  async getPolarizedData(
+    type: string,
+    caid?: string,
+  ): Promise<PolarizedData[]> {
+    let url = `${this._url}/topic/polarized`;
+    let suffixUrl = `?type=${type}&caid=${caid}`;        
+    console.log(`url: ${url}${suffixUrl}`)
+    const res = await getRequest(`${url}${suffixUrl}`, null, 150000);
+    return res as PolarizedData[];
   }
 }
 
+export default RouteHandler;
+
 // Usage example
-const routeHandler = new RouteHandler(apiUrl, stage);
-console.log(routeHandler.getTopicByReid("R01", "C02", "P01"));
+// import {apiUrl, stage} from '../settings.ts';
+// const routeHandler = new RouteHandler(apiUrl, stage);
+// console.log(routeHandler.getTopicByReid("R01", "C02", "P01"));
